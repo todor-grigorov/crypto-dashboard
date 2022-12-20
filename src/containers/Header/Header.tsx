@@ -1,41 +1,103 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import { Button, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsNone from "@mui/icons-material/NotificationsNone";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TranslateIcon from "@mui/icons-material/Translate";
-import { useSocket } from "../../hooks/useSocket";
+
 import { CoinType } from "../../types/CoinType";
 import CoinCard from "../../components/CoinCard/CoinCard";
 import { useNavigate } from "react-router-dom";
-import "./Header.css";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCurrency } from "../../redux/slices/currencySlice";
+import config from "../../configs/config";
+import { ITickerData, TickerService } from "../../services/TickerService";
+import "./Header.css";
 
 const Header = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const socket = useSocket();
   const navigate = useNavigate();
 
-  const tickerId = useAppSelector((state) => state.ticker.chanId);
-  const orderBookId = useAppSelector((state) => state.orderBook.chanId);
-  const tradesId = useAppSelector((state) => state.trades.chanId);
-  const chartsId = useAppSelector((state) => state.charts.chanId);
+  const [btcService, setBtcService] = useState<TickerService>();
+  const [ethService, setEthService] = useState<TickerService>();
+  const [solService, setSolService] = useState<TickerService>();
+  const [udcService, setUdcService] = useState<TickerService>();
+
+  const [btcData, setBtcData] = useState<ITickerData>();
+  const [ethData, setEthData] = useState<ITickerData>();
+  const [solData, setSolData] = useState<ITickerData>();
+  const [udcData, setUdcData] = useState<ITickerData>();
+
   const currency = useAppSelector((state) => state.currency.value);
 
   const [activeCurrency, setActiveCurrency] = useState(currency);
+
+  const getStateHandler = (
+    type: CoinType
+  ): Dispatch<React.SetStateAction<ITickerData | undefined>> | null => {
+    switch (type) {
+      case CoinType.BTC:
+        return setBtcData;
+      case CoinType.ETH:
+        return setEthData;
+      case CoinType.SOL:
+        return setSolData;
+      case CoinType.UDC:
+        return setUdcData;
+
+      default:
+        return null;
+    }
+  };
+
+  /**
+   * Gets value (Last price) of coin (currency pair) based on CoinType
+   * @param type CoinType
+   * @returns number, which is the currency pair Last price
+   */
+  const getCoinValue = (type: CoinType): number => {
+    switch (type) {
+      case CoinType.BTC:
+        return btcData?.LAST_PRICE || 0;
+      case CoinType.ETH:
+        return ethData?.LAST_PRICE || 0;
+      case CoinType.SOL:
+        return solData?.LAST_PRICE || 0;
+      case CoinType.UDC:
+        return udcData?.LAST_PRICE || 0;
+
+      default:
+        return 0;
+    }
+  };
 
   useEffect(() => {
     setActiveCurrency(currency);
     console.log(currency);
   }, [currency]);
 
+  useEffect(() => {
+    Object.values(CoinType).forEach((type) => {
+      const service = new TickerService(
+        getStateHandler(type),
+        "ticker",
+        type,
+        config.urls.wsUrl
+      );
+      service.start();
+    });
+  }, []);
+
   const coinCardClickHandler = (coinType: CoinType): void => {
     setActiveCurrency(coinType);
     dispatch(setCurrency(coinType));
     navigate(`/${coinType.toLocaleLowerCase()}`);
-    socket.unsubscribeAllChannels([tickerId, orderBookId, tradesId, chartsId]);
-    socket.subscribeAllChannels(coinType);
   };
 
   return (
@@ -57,8 +119,7 @@ const Header = (): JSX.Element => {
             <CoinCard
               key={type}
               coinType={type}
-              coinValue={324.67}
-              isIncreasing={true}
+              coinValue={getCoinValue(type)}
               isActive={type === activeCurrency}
               onClickHandler={coinCardClickHandler}
             />

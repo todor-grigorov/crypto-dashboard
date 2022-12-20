@@ -22,13 +22,15 @@ export abstract class BaseWebSocketService<T> {
     protected _websocket?: WebSocket;
     protected _protocols: string | string[] | undefined;
     protected _endpoint: string | URL;
+    protected _setPositionItem: Dispatch<SetStateAction<T | undefined>> | null;
     protected _msg: ISocketMessage = {} as ISocketMessage;
     protected _channel: string;
     protected _coinType: CoinType;
     protected _chanId: number = 0;
     protected _subscibed = false;
 
-    constructor(channel: string, coinType: CoinType, url: string | URL, protocols?: string | string[] | undefined) {
+    constructor(setPositionItem: Dispatch<SetStateAction<T | undefined>> | null, channel: string, coinType: CoinType, url: string | URL, protocols?: string | string[] | undefined) {
+        this._setPositionItem = setPositionItem;
         this._channel = channel;
         this._coinType = coinType;
         this._endpoint = url;
@@ -51,15 +53,47 @@ export abstract class BaseWebSocketService<T> {
         return this._subscibed;
     }
 
-    public abstract mapData(data: [number, Array<number>] | [number, string, Array<number>]): T;
-
-    public start(setPositionItem?: Dispatch<SetStateAction<T | undefined>> | null): void {
-        this._websocket = new WebSocket(this._endpoint, this._protocols);
-
-        this._websocket.addEventListener('open', this.onOpenHandler.bind(this, setPositionItem));
+    public get CoinType(): CoinType {
+        return this._coinType;
     }
 
-    protected configureListeners(setTickerItem?: Dispatch<SetStateAction<string | undefined>> | null) {
+    public set CoinType(value: CoinType) {
+        this._coinType = value;
+    }
+
+    public abstract mapData(data: [number, Array<number>] | [number, string, Array<number>]): T;
+
+    public start(): void {
+        this._websocket = new WebSocket(this._endpoint, this._protocols);
+
+        this._websocket.addEventListener('open', this.onOpenHandler.bind(this));
+    }
+
+    public reconnect(coinType?: CoinType): void {
+        if (coinType) {
+            this._coinType = coinType;
+        }
+
+        this._msg = {
+            event: "subscribe",
+            channel: this._channel,
+            symbol: `${this._coinType}USD`,
+        };
+
+        this._websocket?.send(JSON.stringify(this._msg));
+        this.configureListeners();
+    }
+
+    public unSubscribe(): void {
+        let msg = JSON.stringify({
+            event: "unsubscribe",
+            chanId: this._chanId,
+        });
+
+        this._websocket?.send(msg);
+    }
+
+    protected configureListeners() {
         if (!this._websocket) return;
 
         this._websocket.addEventListener('message', (message: any) => {
@@ -67,10 +101,10 @@ export abstract class BaseWebSocketService<T> {
 
             switch (msgType) {
                 case MessageType.POSITION_UPDATE: {
-                    if (setTickerItem) {
+                    if (this._setPositionItem) {
                         let data = JSON.parse(message?.data);
                         data = JSON.parse(JSON.stringify(this.mapData(data)));
-                        setTickerItem(data);
+                        this._setPositionItem(data);
                     }
                     break;
                 }
@@ -118,7 +152,7 @@ export abstract class BaseWebSocketService<T> {
         }
     }
 
-    protected onOpenHandler(setTickerItem?: Dispatch<SetStateAction<any | undefined>> | null) {
+    protected onOpenHandler() {
         this._msg = {
             event: "subscribe",
             channel: this._channel,
@@ -127,7 +161,7 @@ export abstract class BaseWebSocketService<T> {
 
         this._websocket?.send(JSON.stringify(this._msg));
 
-        this.configureListeners(setTickerItem);
+        this.configureListeners();
     }
 
 }

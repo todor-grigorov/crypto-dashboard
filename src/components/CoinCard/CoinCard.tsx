@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowType } from "../../types/ArrowType";
 import { CoinType } from "../../types/CoinType";
 import { images } from "../imports";
@@ -8,38 +8,48 @@ import "./coinCard.css";
 interface ParentProps {
   coinType: CoinType;
   coinValue: number;
-  isIncreasing: boolean;
   isActive: boolean;
   onClickHandler: (coinType: CoinType) => void;
 }
 
 type Props = ParentProps;
 
-const CoinCard: React.FunctionComponent<Props> = (
-  props: Props
-): JSX.Element => {
+const CoinCard: React.FunctionComponent<Props> = ({
+  coinType,
+  coinValue,
+  isActive,
+  onClickHandler,
+}: Props): JSX.Element => {
+  const [currentValue, setCurrentValue] = useState(0);
+  const [isIncreasing, setIsIncreasing] = useState(true);
+
+  useEffect(() => {
+    if (coinValue > currentValue) setIsIncreasing(true);
+    else setIsIncreasing(false);
+
+    setCurrentValue(coinValue);
+  }, [coinValue]);
+
   return (
     <div
-      className={props.isActive ? "cointCard active" : "cointCard"}
+      className={isActive ? "cointCard active" : "cointCard"}
       onClick={() => {
-        props.onClickHandler(props.coinType);
+        onClickHandler(coinType);
       }}
     >
       <div className="coinCard__image">
-        <img src={images[props.coinType]} alt="coin-name" />
+        <img src={images[coinType]} alt="coin-name" />
       </div>
       <div className="coinCard__info">
-        <div className="coinCard__info-symbol">{props.coinType}</div>
+        <div className="coinCard__info-symbol">{coinType}</div>
         <div
           className={`coinCard__info-container ${
-            props.isIncreasing ? "green" : "red"
+            isIncreasing ? "green" : "red"
           }`}
         >
-          <div className="coinCard__info-container__value">
-            {props.coinValue}
-          </div>
+          <div className="coinCard__info-container__value">{coinValue}</div>
           <div className="coinCard__info-container__sign">
-            {props.isIncreasing ? ArrowType.UP_ARROW : ArrowType.DOWN_ARROW}
+            {isIncreasing ? ArrowType.UP_ARROW : ArrowType.DOWN_ARROW}
           </div>
         </div>
       </div>

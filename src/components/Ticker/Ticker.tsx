@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "../../redux/hooks";
-import {
-  TickerDisplayState,
-  TickerState,
-} from "../../redux/slices/tickerSlice";
 import { ITickerData, TickerService } from "../../services/TickerService";
 import { CoinType } from "../../types/CoinType";
 import config from "../../configs/config";
@@ -28,21 +24,39 @@ interface ParentProps {}
 
 type Props = ParentProps;
 
-const Ticker: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
+const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
   const [coinType, setCoinType] = useState<CoinType>();
-  // const [tickerData, setTickerData] = useState<TickerDisplayState>();
   const [currDate, setCurrDate] = useState(new Date());
   const [tickerData, setTickerData] = useState<ITickerData>();
   const [service, setService] = useState<TickerService>();
-  const tickerState = useAppSelector((state) => state.ticker);
   const currency = useAppSelector((state) => state.currency.value);
 
+  /**
+   * UseCallbac for starting and subscribing to Ticker Websocket Service
+   */
   const tickerService = useCallback(() => {
-    const service = new TickerService("ticker", currency, config.urls.wsUrl);
-    service.start(setTickerData);
+    const service = new TickerService(
+      setTickerData,
+      "ticker",
+      currency,
+      config.urls.wsUrl
+    );
+    service.start();
     return service;
   }, []);
 
+  /**
+   * Unsunscribe to current currency pair and subscribe to the new pair
+   */
+  useEffect(() => {
+    setCoinType(currency);
+    service?.unSubscribe();
+    service?.reconnect(currency);
+  }, [currency]);
+
+  /**
+   * Initial subscribtion to WebSocket and timer logic - on Component Did Mount
+   */
   useEffect(() => {
     setService(tickerService());
 
@@ -54,15 +68,6 @@ const Ticker: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
       clearInterval(timerId);
     };
   }, []);
-
-  useEffect(() => {
-    setCoinType(currency);
-    // setTickerData(tickerState);
-  }, [currency, tickerState]);
-
-  useEffect(() => {
-    console.log(tickerData);
-  }, [tickerData]);
 
   return (
     <div className="ticker">
@@ -85,7 +90,6 @@ const Ticker: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
             </div>
 
             <div className="ticker__data-container-value">
-              ${/* {tickerData && tickerData.hasOwnProperty(data.field) */}
               {tickerData && tickerData.hasOwnProperty(data.field)
                 ? tickerData[data.field as keyof ITickerData]
                 : null}
