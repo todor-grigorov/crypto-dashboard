@@ -1,0 +1,44 @@
+.header {
+    background-color: var(--component-background);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* min-height: 48px; */
+    width: 100%;
+    color: #fff;
+}
+
+.header__left {
+    display: flex;
+    flex: 1;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.header__left-image {
+    margin-left: 0.5rem;
+    cursor: pointer;
+}
+
+.header__left-image img {
+    width: 65px;
+}
+
+.header__left-coins {
+    display: flex;
+    justify-content: space-between;
+    height: 100%;
+    margin-left: 10px;
+}
+
+.header__right {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.header__right-item {
+    margin: 0 0.5rem 0.5rem;
+}

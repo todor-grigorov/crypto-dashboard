@@ -1,0 +1,33 @@
+.orderBook {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    max-width: 500px;
+    max-height: 55vh;
+    min-height: 55vh;
+    margin: 0 1rem;
+    background-color: var(--component-background);
+    -ms-overflow-style: none;
+    /* for Internet Explorer, Edge */
+    scrollbar-width: none;
+    /* for Firefox */
+    overflow-y: scroll;
+    border-radius: 5px;
+}
+
+.orderBook::-webkit-scrollbar {
+    display: none;
+    /* for Chrome, Safari, and Opera */
+}
+
+.orderBook__heading {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.orderBook__tables {
+    display: flex;
+}

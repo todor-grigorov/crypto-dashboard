@@ -1,0 +1,29 @@
+.trading {
+    display: flex;
+    flex-direction: column;
+    flex: 0.5;
+    max-width: 500px;
+    /* max-height: 88vh; */
+    max-height: 40vh;
+    margin: 0 1rem;
+    background-color: var(--component-background);
+    -ms-overflow-style: none;
+    /* for Internet Explorer, Edge */
+    scrollbar-width: none;
+    /* for Firefox */
+    overflow-y: scroll;
+    border-radius: 5px;
+}
+
+.trading::-webkit-scrollbar {
+    display: none;
+    /* for Chrome, Safari, and Opera */
+}
+
+.tarding__heading {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+}

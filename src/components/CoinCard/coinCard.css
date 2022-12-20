@@ -1,0 +1,60 @@
+.cointCard {
+    display: flex;
+    margin-bottom: 0.5px;
+    padding: 5px 16px 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-right-color: #1a3b49;
+}
+
+.cointCard:hover {
+    background-color: var(--main-background);
+}
+
+.active {
+    background-color: var(--main-background);
+}
+
+.coinCard__image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 8px;
+}
+
+.coinCard__image img {
+    width: 20px;
+    height: 20px;
+}
+
+.coinCard__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.coinCard__info-symbol {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.coinCard__info-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.coinCard__info-container__value {
+    margin-right: 5px;
+}
+
+.green {
+    color: green;
+}
+
+.red {
+    color: red;
+}

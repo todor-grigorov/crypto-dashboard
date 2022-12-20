@@ -1,0 +1,6 @@
+.chart {
+    width: 40%;
+    background-color: var(--component-background);
+    border-radius: 10px;
+    padding: 10px;
+}
