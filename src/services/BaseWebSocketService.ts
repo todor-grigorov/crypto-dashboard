@@ -4,10 +4,11 @@ import { CoinType } from "../types/CoinType";
 
 export enum MessageType {
     POSITION_UPDATE = 1,
-    HEARTBEAT = 2,
-    SUBSCRIBE_EVENT = 3,
-    INFO_EVENT = 4,
-    CLOSED_EVENT = 5
+    SNAPSHOT = 2,
+    HEARTBEAT = 3,
+    SUBSCRIBE_EVENT = 4,
+    INFO_EVENT = 5,
+    CLOSED_EVENT = 6
 }
 
 export interface WSEventResponse {
@@ -138,10 +139,15 @@ export abstract class BaseWebSocketService<T> {
 
     protected handleMessageType(message: WSEventResponse | Array<unknown>): MessageType {
         if (Array.isArray(message)) {
-            if (message.length >= 2 && Array.isArray(message[1])) {
+            const [firstElement, secondElement] = message;
+            if (message.length === 2 && Array.isArray(secondElement)) {
                 return MessageType.POSITION_UPDATE;
-            } else {
+            } else if (message.length === 2 && typeof secondElement === "string") {
                 return MessageType.HEARTBEAT;
+            } else if (message.length === 2 && Array.isArray(secondElement) && Array.isArray(secondElement[0])) {
+                return MessageType.SNAPSHOT;
+            } else {
+                return MessageType.POSITION_UPDATE;
             }
         } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "subscribed") {
             return MessageType.SUBSCRIBE_EVENT;
