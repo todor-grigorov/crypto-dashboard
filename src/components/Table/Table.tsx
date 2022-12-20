@@ -47,7 +47,7 @@ interface ParentProps {
 type Props = ParentProps;
 
 const Table: React.FunctionComponent<Props> = (props: Props) => {
-  const data = useMemo(() => props.data, [props.data]);
+  // const data = useMemo(() => props.data, [props.data]);
 
   const {
     getTableProps,
@@ -58,7 +58,7 @@ const Table: React.FunctionComponent<Props> = (props: Props) => {
     totalColumnsWidth,
   } = useTable({
     columns: props.columns,
-    data: data,
+    data: props.data,
   });
 
   // useEffect(() => {

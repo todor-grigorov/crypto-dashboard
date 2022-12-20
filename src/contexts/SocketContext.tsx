@@ -140,7 +140,7 @@ export const SocketProvider = (props: ISocketProviderProps) => {
         dispatch(addSnapshotTrades(data[1]));
       }
       if (orderBookIdRef.current === data[0]) {
-        dispatch(addSnapshotOrderBook(data[1]));
+        // dispatch(addSnapshotOrderBook(data[1]));
       }
       if (chartsIdRef.current === data[0]) {
         dispatch(addSnapshotCharts(data[1]));
@@ -166,7 +166,7 @@ export const SocketProvider = (props: ISocketProviderProps) => {
         dispatch(updateTickerOperationalData(data[1]));
       }
       if (orderBookIdRef.current === data[0]) {
-        dispatch(addBookData(data[1]));
+        // dispatch(addBookData(data[1]));
       }
       if (tradesIdRef.current === data[0]) {
         dispatch(addTradeData(data[1]));

@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction, current } from '@reduxjs/toolkit';
+import { WebSocketData } from '../../services/BaseWebSocketService';
+import { IOrderBookData } from '../../services/OrderBookService';
 import { SocketChanelType } from '../../types/SocketChannelType';
 
 export interface BookState {
@@ -14,6 +16,7 @@ export interface OrderBookState {
     channel: SocketChanelType,
     bids: Array<BookState>,
     asks: Array<BookState>,
+    loading: boolean,
 }
 
 const create_UUID = (): string => {
@@ -26,13 +29,15 @@ const create_UUID = (): string => {
     return uuid;
 }
 
-const processBookData = (data: Array<Array<number>>, state: OrderBookState): OrderBookState => {
-    let result = state;
+export const processBookData = (response: WebSocketData<IOrderBookData>, state: OrderBookState): OrderBookState => {
+    let result = JSON.parse(JSON.stringify(state)) as OrderBookState;
 
-    data.forEach(item => {
-        let price = item[0];
-        let count = item[1];
-        let amount = item[2];
+
+    response.data.forEach(item => {
+        const { PRICE, AMOUNT, COUNT } = item;
+        let price = PRICE;
+        let count = COUNT;
+        let amount = AMOUNT;
         let id = create_UUID();
 
         if (count > 0) {
@@ -42,6 +47,7 @@ const processBookData = (data: Array<Array<number>>, state: OrderBookState): Ord
                 if (bidIndex >= 0) {
                     result.bids[bidIndex].amount = amount;
                 } else {
+                    // if (!result.bids.length) result.bids[0] = { price, count, amount, id, isUp: true };
                     if (result.bids.length < 25) result.bids.push({ price, count, amount, id, isUp: true });
                     if (result.bids.length >= 25) {
                         // TODO:
@@ -54,6 +60,7 @@ const processBookData = (data: Array<Array<number>>, state: OrderBookState): Ord
                 if (askIndex >= 0) {
                     result.asks[askIndex].amount = amount;
                 } else {
+                    // if (!result.asks.length) result.asks[0] = { price, count, amount, id, isUp: false };
                     if (result.asks.length < 25) result.asks.push({ price, count, amount, id, isUp: false });
                     if (result.asks.length >= 25) {
                         // TODO:
@@ -79,11 +86,12 @@ const processBookData = (data: Array<Array<number>>, state: OrderBookState): Ord
 
 
 
-const initialState: OrderBookState = {
+let initialState: OrderBookState = {
     chanId: 0,
     channel: SocketChanelType.BOOK,
-    bids: [],
-    asks: []
+    bids: [{ price: 0, count: 0, amount: 0, id: 'asd', isUp: true }],
+    asks: [{ price: 0, count: 0, amount: 0, id: 'sasd', isUp: false }],
+    loading: true,
 }
 
 export const orderBookSlice = createSlice({
@@ -96,20 +104,26 @@ export const orderBookSlice = createSlice({
             return state;
         },
 
-        addSnapshotOrderBook: (state, action: PayloadAction<Array<Array<number>>>) => {
+        addSnapshotOrderBook: (state, action: PayloadAction<WebSocketData<IOrderBookData>>) => {
+            const newState = processBookData(action.payload, initialState);
+
+            return newState;
+        },
+
+        addBookData: (state, action: PayloadAction<WebSocketData<IOrderBookData>>) => {
             const newState = processBookData(action.payload, state);
 
             return newState;
         },
 
-        addBookData: (state, { payload }) => {
-            const newState = processBookData([payload], state);
+        setLoading: (state, { payload }) => {
+            const newState = { ...state, loading: payload };
 
             return newState;
         }
     }
 });
 
-export const { subscribeBook, addBookData, addSnapshotOrderBook } = orderBookSlice.actions;
+export const { subscribeBook, addBookData, addSnapshotOrderBook, setLoading } = orderBookSlice.actions;
 
 export default orderBookSlice.reducer;

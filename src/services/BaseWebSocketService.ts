@@ -8,7 +8,7 @@ export enum MessageType {
     HEARTBEAT = 3,
     SUBSCRIBE_EVENT = 4,
     INFO_EVENT = 5,
-    UNSUBSCRIBED = 6,
+    UNSUBSCRIBED_EVENT = 6,
     CLOSED_EVENT = 7
 }
 
@@ -103,6 +103,14 @@ export abstract class BaseWebSocketService<T> {
         this._websocket?.send(msg);
     }
 
+    public closeWebSocketConnection(): void {
+        this._websocket?.close();
+
+        this._websocket?.addEventListener("close", () => {
+            this._websocket = undefined;
+        });
+    }
+
     protected configureListeners() {
         if (!this._websocket) return;
 
@@ -111,7 +119,7 @@ export abstract class BaseWebSocketService<T> {
 
             switch (msgType) {
                 case MessageType.POSITION_UPDATE: {
-                    if (this._setPositionItem) {
+                    if (this._setPositionItem && this._subscibed) {
                         let data = JSON.parse(message?.data);
                         data = JSON.parse(JSON.stringify(this.mapUpdateData(data)));
                         this._setPositionItem(data);
@@ -119,7 +127,7 @@ export abstract class BaseWebSocketService<T> {
                     break;
                 }
                 case MessageType.SNAPSHOT:
-                    if (this._setSnapshot) {
+                    if (this._setSnapshot && this._subscibed) {
                         let data = JSON.parse(message?.data);
                         data = JSON.parse(JSON.stringify(this.mapSnapshotData(data)));
                         this._setSnapshot(data);
@@ -131,6 +139,12 @@ export abstract class BaseWebSocketService<T> {
                 case MessageType.SUBSCRIBE_EVENT: {
                     let data = JSON.parse(message?.data);
                     this._subscibed = true;
+                    this._chanId = data.chanId;
+                    break;
+                }
+                case MessageType.UNSUBSCRIBED_EVENT: {
+                    let data = JSON.parse(message?.data);
+                    this._subscibed = false;
                     this._chanId = data.chanId;
                     break;
                 }
@@ -156,12 +170,12 @@ export abstract class BaseWebSocketService<T> {
     protected handleMessageType(message: WSEventResponse | Array<unknown>): MessageType {
         if (Array.isArray(message)) {
             const [firstElement, secondElement] = message;
-            if (message.length === 2 && Array.isArray(secondElement)) {
+            if (message.length === 2 && Array.isArray(secondElement) && Array.isArray(secondElement[0])) {
+                return MessageType.SNAPSHOT;
+            } else if (message.length === 2 && Array.isArray(secondElement)) {
                 return MessageType.POSITION_UPDATE;
             } else if (message.length === 2 && typeof secondElement === "string") {
                 return MessageType.HEARTBEAT;
-            } else if (message.length === 2 && Array.isArray(secondElement) && Array.isArray(secondElement[0])) {
-                return MessageType.SNAPSHOT;
             } else {
                 return MessageType.POSITION_UPDATE;
             }
@@ -170,7 +184,7 @@ export abstract class BaseWebSocketService<T> {
         } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "info") {
             return MessageType.INFO_EVENT;
         } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "unsubscribed") {
-            return MessageType.UNSUBSCRIBED;
+            return MessageType.UNSUBSCRIBED_EVENT;
         } else {
             return MessageType.CLOSED_EVENT;
         }

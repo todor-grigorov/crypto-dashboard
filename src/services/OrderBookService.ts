@@ -43,7 +43,12 @@ export class OrderBookService extends BaseWebSocketService<IOrderBookData> {
     }
 
     mapSnapshotData(data: [number, Array<Array<number>>]): WebSocketData<IOrderBookData> {
-        let result: WebSocketData<IOrderBookData> = initialState;
+        let result: WebSocketData<IOrderBookData> = {
+            channelId: 0,
+            data: []
+
+        } as WebSocketData<IOrderBookData>;
+
         const [channelId, nestedArray] = data;
         result.channelId = channelId;
 
@@ -54,9 +59,7 @@ export class OrderBookService extends BaseWebSocketService<IOrderBookData> {
                 AMOUNT,
             ] = update;
 
-            result.data[idx].PRICE = PRICE;
-            result.data[idx].COUNT = COUNT;
-            result.data[idx].AMOUNT = AMOUNT;
+            result.data.push({ PRICE, COUNT, AMOUNT });
         });
 
         return result;

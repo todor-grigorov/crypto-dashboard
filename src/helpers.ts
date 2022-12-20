@@ -1,4 +1,4 @@
-import { OrderBookState } from "./components/OrderBook/OrderBook";
+import { OrderBookState } from "./redux/slices/orderBookSlice";
 import { WebSocketData } from "./services/BaseWebSocketService";
 import { IOrderBookData } from "./services/OrderBookService";
 import { CoinType } from "./types/CoinType";
@@ -22,7 +22,7 @@ const create_UUID = (): string => {
 }
 
 export const processBookData = (response: WebSocketData<IOrderBookData>, state: OrderBookState): OrderBookState => {
-    let result = state;
+    let result = JSON.parse(JSON.stringify(state)) as OrderBookState;
 
     response.data.forEach(item => {
         const { PRICE, AMOUNT, COUNT } = item;
