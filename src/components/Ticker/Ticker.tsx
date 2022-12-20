@@ -5,6 +5,7 @@ import { CoinType } from "../../types/CoinType";
 import config from "../../configs/config";
 import { images } from "../imports";
 import "./ticker.css";
+import { WebSocketData } from "../../services/BaseWebSocketService";
 
 const names: { [key: string]: string } = {
   BTC: "Bitcoin",
@@ -27,7 +28,7 @@ type Props = ParentProps;
 const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
   const [coinType, setCoinType] = useState<CoinType>();
   const [currDate, setCurrDate] = useState(new Date());
-  const [tickerData, setTickerData] = useState<ITickerData>();
+  const [tickerData, setTickerData] = useState<WebSocketData<ITickerData>>();
   const [service, setService] = useState<TickerService>();
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -69,6 +70,11 @@ const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log(tickerData);
+  }, [tickerData]);
+
+  const currentData = tickerData?.data[0];
   return (
     <div className="ticker">
       <div className="ticker__presentation">
@@ -90,8 +96,9 @@ const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
             </div>
 
             <div className="ticker__data-container-value">
-              {tickerData && tickerData.hasOwnProperty(data.field)
-                ? tickerData[data.field as keyof ITickerData]
+              {/* {tickerData && tickerData.hasOwnProperty(data.field) */}
+              {currentData
+                ? currentData[data.field as keyof ITickerData]
                 : null}
             </div>
           </div>

@@ -8,34 +8,42 @@ export enum MessageType {
     HEARTBEAT = 3,
     SUBSCRIBE_EVENT = 4,
     INFO_EVENT = 5,
-    CLOSED_EVENT = 6
+    UNSUBSCRIBED = 6,
+    CLOSED_EVENT = 7
 }
 
 export interface WSEventResponse {
     chanId: number; //316714
     channel: string; //"ticker"
-    event: "subscribed" | "info";
+    event: "subscribed" | "info" | "unsubscribed";
     pair: string; //"BTCUSD"
     symbol: string; //"tBTCUSD"
+}
+
+export interface WebSocketData<T> {
+    channelId: number;
+    data: Array<T>;
 }
 
 export abstract class BaseWebSocketService<T> {
     protected _websocket?: WebSocket;
     protected _protocols: string | string[] | undefined;
     protected _endpoint: string | URL;
-    protected _setPositionItem: Dispatch<SetStateAction<T | undefined>> | null;
+    protected _setPositionItem: Dispatch<SetStateAction<WebSocketData<T> | undefined>> | null;
+    protected _setSnapshot: Dispatch<SetStateAction<WebSocketData<T> | undefined>> | null | undefined;
     protected _msg: ISocketMessage = {} as ISocketMessage;
     protected _channel: string;
     protected _coinType: CoinType;
     protected _chanId: number = 0;
     protected _subscibed = false;
 
-    constructor(setPositionItem: Dispatch<SetStateAction<T | undefined>> | null, channel: string, coinType: CoinType, url: string | URL, protocols?: string | string[] | undefined) {
+    constructor(setPositionItem: Dispatch<SetStateAction<WebSocketData<T> | undefined>> | null, channel: string, coinType: CoinType, url: string | URL, protocols?: string | string[] | undefined, setSnapshot?: Dispatch<SetStateAction<WebSocketData<T> | undefined>> | null) {
         this._setPositionItem = setPositionItem;
         this._channel = channel;
         this._coinType = coinType;
         this._endpoint = url;
         this._protocols = protocols;
+        this._setSnapshot = setSnapshot;
     }
 
     public get Endpoint(): string | URL {
@@ -62,7 +70,8 @@ export abstract class BaseWebSocketService<T> {
         this._coinType = value;
     }
 
-    public abstract mapData(data: [number, Array<number>] | [number, string, Array<number>]): T;
+    public abstract mapUpdateData(data: [number, Array<number>] | [number, string, Array<number>]): WebSocketData<T>;
+    public abstract mapSnapshotData(data: [number, Array<Array<number>>]): WebSocketData<T>;
 
     public start(): void {
         this._websocket = new WebSocket(this._endpoint, this._protocols);
@@ -104,11 +113,18 @@ export abstract class BaseWebSocketService<T> {
                 case MessageType.POSITION_UPDATE: {
                     if (this._setPositionItem) {
                         let data = JSON.parse(message?.data);
-                        data = JSON.parse(JSON.stringify(this.mapData(data)));
+                        data = JSON.parse(JSON.stringify(this.mapUpdateData(data)));
                         this._setPositionItem(data);
                     }
                     break;
                 }
+                case MessageType.SNAPSHOT:
+                    if (this._setSnapshot) {
+                        let data = JSON.parse(message?.data);
+                        data = JSON.parse(JSON.stringify(this.mapSnapshotData(data)));
+                        this._setSnapshot(data);
+                    }
+                    break;
                 case MessageType.INFO_EVENT:
                 case MessageType.HEARTBEAT:
                     break;
@@ -153,6 +169,8 @@ export abstract class BaseWebSocketService<T> {
             return MessageType.SUBSCRIBE_EVENT;
         } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "info") {
             return MessageType.INFO_EVENT;
+        } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "unsubscribed") {
+            return MessageType.UNSUBSCRIBED;
         } else {
             return MessageType.CLOSED_EVENT;
         }

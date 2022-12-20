@@ -1,26 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
 import { ISocketMessage } from "../interfaces/ISocketMessage";
 import { CoinType } from "../types/CoinType";
-import { BaseWebSocketService } from "./BaseWebSocketService";
-
-// export enum MessageType {
-//     POSITION_UPDATE = 1,
-//     HEARTBEAT = 2,
-//     SUBSCRIBE_EVENT = 3,
-//     INFO_EVENT = 4,
-//     CLOSED_EVENT = 5
-// }
-
-// export interface WSEventResponse {
-//     chanId: number; //316714
-//     channel: string; //"ticker"
-//     event: "subscribed" | "info";
-//     pair: string; //"BTCUSD"
-//     symbol: string; //"tBTCUSD"
-// }
+import { BaseWebSocketService, WebSocketData } from "./BaseWebSocketService";
 
 export interface ITickerData {
-    CHANNEL_ID: number,
     BID: number,
     BID_SIZE: number,
     ASK: number,
@@ -31,27 +14,33 @@ export interface ITickerData {
     VOLUME: number,
     HIGH: number,
     LOW: number
+
 };
 
 const initialState = {
-    CHANNEL_ID: 0,
-    BID: 0,
-    BID_SIZE: 0,
-    ASK: 0,
-    ASK_SIZE: 0,
-    DAILY_CHANGE: 0,
-    DAILY_CHANGE_RELATIVE: 0,
-    LAST_PRICE: 0,
-    VOLUME: 0,
-    HIGH: 0,
-    LOW: 0
-} as ITickerData;
+    channelId: 0,
+    data: [
+        {
+            BID: 0,
+            BID_SIZE: 0,
+            ASK: 0,
+            ASK_SIZE: 0,
+            DAILY_CHANGE: 0,
+            DAILY_CHANGE_RELATIVE: 0,
+            LAST_PRICE: 0,
+            VOLUME: 0,
+            HIGH: 0,
+            LOW: 0
+        }
+    ]
+
+} as WebSocketData<ITickerData>;
 
 export class TickerService extends BaseWebSocketService<ITickerData> {
-    mapData(data: [number, Array<number>]): ITickerData {
-        let result: ITickerData = initialState;
+    mapUpdateData(data: [number, Array<number>]): WebSocketData<ITickerData> {
+        let result: WebSocketData<ITickerData> = initialState;
         const [channelId, update] = data;
-        result.CHANNEL_ID = channelId;
+        result.channelId = channelId;
 
         if (update.length !== 10) return result;
 
@@ -68,17 +57,21 @@ export class TickerService extends BaseWebSocketService<ITickerData> {
             LOW
         ] = update;
 
-        result.BID = BID;
-        result.BID_SIZE = BID_SIZE;
-        result.ASK = ASK;
-        result.ASK_SIZE = ASK_SIZE;
-        result.DAILY_CHANGE = DAILY_CHANGE;
-        result.DAILY_CHANGE_RELATIVE = DAILY_CHANGE_RELATIVE;
-        result.LAST_PRICE = LAST_PRICE;
-        result.VOLUME = VOLUME;
-        result.HIGH = HIGH;
-        result.LOW = LOW;
+        result.data[0].BID = BID;
+        result.data[0].BID_SIZE = BID_SIZE;
+        result.data[0].ASK = ASK;
+        result.data[0].ASK_SIZE = ASK_SIZE;
+        result.data[0].DAILY_CHANGE = DAILY_CHANGE;
+        result.data[0].DAILY_CHANGE_RELATIVE = DAILY_CHANGE_RELATIVE;
+        result.data[0].LAST_PRICE = LAST_PRICE;
+        result.data[0].VOLUME = VOLUME;
+        result.data[0].HIGH = HIGH;
+        result.data[0].LOW = LOW;
 
         return result;
+    }
+
+    mapSnapshotData(data: [number, Array<Array<number>>]): WebSocketData<ITickerData> {
+        return initialState;
     }
 }

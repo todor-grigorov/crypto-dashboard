@@ -19,6 +19,7 @@ import { setCurrency } from "../../redux/slices/currencySlice";
 import config from "../../configs/config";
 import { ITickerData, TickerService } from "../../services/TickerService";
 import "./Header.css";
+import { WebSocketData } from "../../services/BaseWebSocketService";
 
 const Header = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -29,10 +30,10 @@ const Header = (): JSX.Element => {
   const [solService, setSolService] = useState<TickerService>();
   const [udcService, setUdcService] = useState<TickerService>();
 
-  const [btcData, setBtcData] = useState<ITickerData>();
-  const [ethData, setEthData] = useState<ITickerData>();
-  const [solData, setSolData] = useState<ITickerData>();
-  const [udcData, setUdcData] = useState<ITickerData>();
+  const [btcData, setBtcData] = useState<WebSocketData<ITickerData>>();
+  const [ethData, setEthData] = useState<WebSocketData<ITickerData>>();
+  const [solData, setSolData] = useState<WebSocketData<ITickerData>>();
+  const [udcData, setUdcData] = useState<WebSocketData<ITickerData>>();
 
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -45,7 +46,9 @@ const Header = (): JSX.Element => {
    */
   const getStateHandler = (
     type: CoinType
-  ): Dispatch<React.SetStateAction<ITickerData | undefined>> | null => {
+  ): Dispatch<
+    React.SetStateAction<WebSocketData<ITickerData> | undefined>
+  > | null => {
     switch (type) {
       case CoinType.BTC:
         return setBtcData;
@@ -69,13 +72,13 @@ const Header = (): JSX.Element => {
   const getCoinValue = (type: CoinType): number => {
     switch (type) {
       case CoinType.BTC:
-        return btcData?.LAST_PRICE || 0;
+        return btcData?.data[0].LAST_PRICE || 0;
       case CoinType.ETH:
-        return ethData?.LAST_PRICE || 0;
+        return ethData?.data[0].LAST_PRICE || 0;
       case CoinType.SOL:
-        return solData?.LAST_PRICE || 0;
+        return solData?.data[0].LAST_PRICE || 0;
       case CoinType.UDC:
-        return udcData?.LAST_PRICE || 0;
+        return udcData?.data[0].LAST_PRICE || 0;
 
       default:
         return 0;
