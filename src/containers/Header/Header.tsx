@@ -38,6 +38,11 @@ const Header = (): JSX.Element => {
 
   const [activeCurrency, setActiveCurrency] = useState(currency);
 
+  /**
+   * Gets Dispatch function that stores the state for a coresponding coin (currency pair)
+   * @param type type CoinType
+   * @returns Dispatch function that stores the state for a coresponding coin (currency pair)
+   */
   const getStateHandler = (
     type: CoinType
   ): Dispatch<React.SetStateAction<ITickerData | undefined>> | null => {
@@ -77,11 +82,17 @@ const Header = (): JSX.Element => {
     }
   };
 
+  /**
+   * Sets Active currency when changed
+   */
   useEffect(() => {
     setActiveCurrency(currency);
     console.log(currency);
   }, [currency]);
 
+  /**
+   * Initial start of all WS connections for all CoinCards
+   */
   useEffect(() => {
     Object.values(CoinType).forEach((type) => {
       const service = new TickerService(
@@ -94,6 +105,10 @@ const Header = (): JSX.Element => {
     });
   }, []);
 
+  /**
+   * CoinCard click handler
+   * @param coinType CoinType
+   */
   const coinCardClickHandler = (coinType: CoinType): void => {
     setActiveCurrency(coinType);
     dispatch(setCurrency(coinType));
