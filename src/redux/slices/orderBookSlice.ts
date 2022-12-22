@@ -96,12 +96,6 @@ export const orderBookSlice = createSlice({
     name: 'orderBook',
     initialState,
     reducers: {
-        subscribeBook: (state, { payload }) => {
-            state.chanId = payload["chanId"];
-            state.channel = payload["channel"];
-            return state;
-        },
-
         addSnapshotOrderBook: (state, action: PayloadAction<WebSocketData<IOrderBookResponse>>) => {
             const newState = processBookData(action.payload, initialState);
 
@@ -122,6 +116,6 @@ export const orderBookSlice = createSlice({
     }
 });
 
-export const { subscribeBook, addBookData, addSnapshotOrderBook, setLoading } = orderBookSlice.actions;
+export const { addBookData, addSnapshotOrderBook, setLoading } = orderBookSlice.actions;
 
 export default orderBookSlice.reducer;

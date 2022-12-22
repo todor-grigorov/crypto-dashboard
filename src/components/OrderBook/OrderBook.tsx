@@ -91,8 +91,6 @@ const OrderBook: React.FunctionComponent<Props> = (): JSX.Element => {
     service?.unSubscribe();
     dispatch(setLoading(true));
     service?.reconnect(currency);
-    // service?.closeWebSocketConnection();
-    // serviceConnect(currency);
   }, [currency]);
 
   useEffect(() => {
