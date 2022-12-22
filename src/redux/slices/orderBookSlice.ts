@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, current } from '@reduxjs/toolkit';
 import { WebSocketData } from '../../services/BaseWebSocketService';
-import { IOrderBookData } from '../../services/OrderBookService';
+import { IOrderBookResponse } from '../../services/OrderBookService';
 import { SocketChanelType } from '../../types/SocketChannelType';
 
 export interface BookState {
@@ -29,7 +29,7 @@ const create_UUID = (): string => {
     return uuid;
 }
 
-export const processBookData = (response: WebSocketData<IOrderBookData>, state: OrderBookState): OrderBookState => {
+export const processBookData = (response: WebSocketData<IOrderBookResponse>, state: OrderBookState): OrderBookState => {
     let result = JSON.parse(JSON.stringify(state)) as OrderBookState;
 
 
@@ -47,7 +47,6 @@ export const processBookData = (response: WebSocketData<IOrderBookData>, state: 
                 if (bidIndex >= 0) {
                     result.bids[bidIndex].amount = amount;
                 } else {
-                    // if (!result.bids.length) result.bids[0] = { price, count, amount, id, isUp: true };
                     if (result.bids.length < 25) result.bids.push({ price, count, amount, id, isUp: true });
                     if (result.bids.length >= 25) {
                         // TODO:
@@ -60,7 +59,6 @@ export const processBookData = (response: WebSocketData<IOrderBookData>, state: 
                 if (askIndex >= 0) {
                     result.asks[askIndex].amount = amount;
                 } else {
-                    // if (!result.asks.length) result.asks[0] = { price, count, amount, id, isUp: false };
                     if (result.asks.length < 25) result.asks.push({ price, count, amount, id, isUp: false });
                     if (result.asks.length >= 25) {
                         // TODO:
@@ -104,13 +102,13 @@ export const orderBookSlice = createSlice({
             return state;
         },
 
-        addSnapshotOrderBook: (state, action: PayloadAction<WebSocketData<IOrderBookData>>) => {
+        addSnapshotOrderBook: (state, action: PayloadAction<WebSocketData<IOrderBookResponse>>) => {
             const newState = processBookData(action.payload, initialState);
 
             return newState;
         },
 
-        addBookData: (state, action: PayloadAction<WebSocketData<IOrderBookData>>) => {
+        addBookData: (state, action: PayloadAction<WebSocketData<IOrderBookResponse>>) => {
             const newState = processBookData(action.payload, state);
 
             return newState;

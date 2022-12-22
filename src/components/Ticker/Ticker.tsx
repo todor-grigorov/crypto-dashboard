@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "../../redux/hooks";
-import { ITickerData, TickerService } from "../../services/TickerService";
+import { ITickerResponse, TickerService } from "../../services/TickerService";
 import { CoinType } from "../../types/CoinType";
 import config from "../../configs/config";
 import { images } from "../imports";
@@ -28,7 +28,8 @@ type Props = ParentProps;
 const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
   const [coinType, setCoinType] = useState<CoinType>();
   const [currDate, setCurrDate] = useState(new Date());
-  const [tickerData, setTickerData] = useState<WebSocketData<ITickerData>>();
+  const [tickerData, setTickerData] =
+    useState<WebSocketData<ITickerResponse>>();
   const [service, setService] = useState<TickerService>();
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -98,7 +99,7 @@ const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
             <div className="ticker__data-container-value">
               {/* {tickerData && tickerData.hasOwnProperty(data.field) */}
               {currentData
-                ? currentData[data.field as keyof ITickerData]
+                ? currentData[data.field as keyof ITickerResponse]
                 : null}
             </div>
           </div>

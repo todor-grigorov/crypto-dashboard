@@ -3,7 +3,7 @@ import config from "../../configs/config";
 import { useAppSelector } from "../../redux/hooks";
 import { WebSocketData } from "../../services/BaseWebSocketService";
 import {
-  IOrderBookData,
+  IOrderBookResponse,
   OrderBookService,
 } from "../../services/OrderBookService";
 import { SocketChanelType } from "../../types/SocketChannelType";
@@ -43,9 +43,9 @@ type Props = ParentProps;
 
 const OrderBook: React.FunctionComponent<Props> = (): JSX.Element => {
   const [orderBookUpdates, setOrderBookUpdates] =
-    useState<WebSocketData<IOrderBookData>>();
+    useState<WebSocketData<IOrderBookResponse>>();
   const [orderBookSnapshot, setOrderBookSnapshot] =
-    useState<WebSocketData<IOrderBookData>>();
+    useState<WebSocketData<IOrderBookResponse>>();
   const [service, setService] = useState<OrderBookService>();
 
   const bids = useAppSelector((state) => state.orderBook.bids);

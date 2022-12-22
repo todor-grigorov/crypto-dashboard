@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCurrency } from "../../redux/slices/currencySlice";
 import config from "../../configs/config";
-import { ITickerData, TickerService } from "../../services/TickerService";
+import { ITickerResponse, TickerService } from "../../services/TickerService";
 import "./Header.css";
 import { WebSocketData } from "../../services/BaseWebSocketService";
 
@@ -30,10 +30,10 @@ const Header = (): JSX.Element => {
   const [solService, setSolService] = useState<TickerService>();
   const [udcService, setUdcService] = useState<TickerService>();
 
-  const [btcData, setBtcData] = useState<WebSocketData<ITickerData>>();
-  const [ethData, setEthData] = useState<WebSocketData<ITickerData>>();
-  const [solData, setSolData] = useState<WebSocketData<ITickerData>>();
-  const [udcData, setUdcData] = useState<WebSocketData<ITickerData>>();
+  const [btcData, setBtcData] = useState<WebSocketData<ITickerResponse>>();
+  const [ethData, setEthData] = useState<WebSocketData<ITickerResponse>>();
+  const [solData, setSolData] = useState<WebSocketData<ITickerResponse>>();
+  const [udcData, setUdcData] = useState<WebSocketData<ITickerResponse>>();
 
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -47,7 +47,7 @@ const Header = (): JSX.Element => {
   const getStateHandler = (
     type: CoinType
   ): Dispatch<
-    React.SetStateAction<WebSocketData<ITickerData> | undefined>
+    React.SetStateAction<WebSocketData<ITickerResponse> | undefined>
   > | null => {
     switch (type) {
       case CoinType.BTC:

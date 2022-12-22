@@ -3,7 +3,7 @@ import { ISocketMessage } from "../interfaces/ISocketMessage";
 import { CoinType } from "../types/CoinType";
 import { BaseWebSocketService, WebSocketData } from "./BaseWebSocketService";
 
-export interface ITickerData {
+export interface ITickerResponse {
     BID: number,
     BID_SIZE: number,
     ASK: number,
@@ -34,11 +34,11 @@ const initialState = {
         }
     ]
 
-} as WebSocketData<ITickerData>;
+} as WebSocketData<ITickerResponse>;
 
-export class TickerService extends BaseWebSocketService<ITickerData> {
-    mapUpdateData(data: [number, Array<number>]): WebSocketData<ITickerData> {
-        let result: WebSocketData<ITickerData> = initialState;
+export class TickerService extends BaseWebSocketService<ITickerResponse> {
+    mapUpdateData(data: [number, Array<number>]): WebSocketData<ITickerResponse> {
+        let result: WebSocketData<ITickerResponse> = initialState;
         const [channelId, update] = data;
         result.channelId = channelId;
 
@@ -71,7 +71,7 @@ export class TickerService extends BaseWebSocketService<ITickerData> {
         return result;
     }
 
-    mapSnapshotData(data: [number, Array<Array<number>>]): WebSocketData<ITickerData> {
+    mapSnapshotData(data: [number, Array<Array<number>>]): WebSocketData<ITickerResponse> {
         return initialState;
     }
 }

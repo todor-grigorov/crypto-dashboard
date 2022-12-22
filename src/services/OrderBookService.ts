@@ -1,7 +1,6 @@
 import { BaseWebSocketService, WebSocketData } from "./BaseWebSocketService";
 
-
-export interface IOrderBookData {
+export interface IOrderBookResponse {
     PRICE: number,
     COUNT: number,
     AMOUNT: number,
@@ -19,11 +18,11 @@ const initialState = {
         }
     ]
 
-} as WebSocketData<IOrderBookData>;
+} as WebSocketData<IOrderBookResponse>;
 
-export class OrderBookService extends BaseWebSocketService<IOrderBookData> {
-    mapUpdateData(data: [number, Array<number>]): WebSocketData<IOrderBookData> {
-        let result: WebSocketData<IOrderBookData> = initialState;
+export class OrderBookService extends BaseWebSocketService<IOrderBookResponse> {
+    mapUpdateData(data: [number, Array<number>]): WebSocketData<IOrderBookResponse> {
+        let result: WebSocketData<IOrderBookResponse> = initialState;
         const [channelId, update] = data;
         result.channelId = channelId;
 
@@ -42,12 +41,12 @@ export class OrderBookService extends BaseWebSocketService<IOrderBookData> {
         return result;
     }
 
-    mapSnapshotData(data: [number, Array<Array<number>>]): WebSocketData<IOrderBookData> {
-        let result: WebSocketData<IOrderBookData> = {
+    mapSnapshotData(data: [number, Array<Array<number>>]): WebSocketData<IOrderBookResponse> {
+        let result: WebSocketData<IOrderBookResponse> = {
             channelId: 0,
             data: []
 
-        } as WebSocketData<IOrderBookData>;
+        } as WebSocketData<IOrderBookResponse>;
 
         const [channelId, nestedArray] = data;
         result.channelId = channelId;

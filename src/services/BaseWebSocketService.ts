@@ -22,6 +22,7 @@ export interface WSEventResponse {
 
 export interface WebSocketData<T> {
     channelId: number;
+    abbreviation?: string;
     data: Array<T>;
 }
 
@@ -148,18 +149,8 @@ export abstract class BaseWebSocketService<T> {
                     this._chanId = data.chanId;
                     break;
                 }
-                // case MessageType.CLOSED_EVENT: {
-                //     this._subscibed = true;
-
-                //     let msg = JSON.stringify({
-                //         event: "unsubscribe",
-                //         chanId: this._chanId,
-                //     });
-
-                //     this._websocket?.send(msg);
-                //     break;
-                // }
                 default: {
+                    console.error('Received unknown message type');
                     break;
                 }
             }
