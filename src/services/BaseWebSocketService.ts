@@ -1,6 +1,8 @@
 import { Dispatch, SetStateAction } from "react";
 import { ISocketMessage } from "../interfaces/ISocketMessage";
 import { CoinType } from "../types/CoinType";
+import { ResponseEventType } from "../types/ResponseEventType";
+import { SendEventType } from "../types/SendEventType";
 
 export enum MessageType {
     POSITION_UPDATE = 1,
@@ -15,7 +17,7 @@ export enum MessageType {
 export interface WSEventResponse {
     chanId: number; //316714
     channel: string; //"ticker"
-    event: "subscribed" | "info" | "unsubscribed";
+    event: ResponseEventType;
     pair: string; //"BTCUSD"
     symbol: string; //"tBTCUSD"
 }
@@ -86,7 +88,7 @@ export abstract class BaseWebSocketService<T> {
         }
 
         this._msg = {
-            event: "subscribe",
+            event: SendEventType.SUBSCRIBE,
             channel: this._channel,
             symbol: `${this._coinType}USD`,
         };
@@ -97,7 +99,7 @@ export abstract class BaseWebSocketService<T> {
 
     public unSubscribe(): void {
         let msg = JSON.stringify({
-            event: "unsubscribe",
+            event: SendEventType.UNSUBSCRIBE,
             chanId: this._chanId,
         });
 
@@ -170,11 +172,11 @@ export abstract class BaseWebSocketService<T> {
             } else {
                 return MessageType.POSITION_UPDATE;
             }
-        } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "subscribed") {
+        } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === ResponseEventType.SUBSCRIBED) {
             return MessageType.SUBSCRIBE_EVENT;
-        } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "info") {
+        } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === ResponseEventType.INFO) {
             return MessageType.INFO_EVENT;
-        } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === "unsubscribed") {
+        } else if (typeof message === 'object' && message.hasOwnProperty("event") && message.event === ResponseEventType.UNSUBSCRIBED) {
             return MessageType.UNSUBSCRIBED_EVENT;
         } else {
             return MessageType.CLOSED_EVENT;
@@ -183,7 +185,7 @@ export abstract class BaseWebSocketService<T> {
 
     protected onOpenHandler() {
         this._msg = {
-            event: "subscribe",
+            event: SendEventType.SUBSCRIBE,
             channel: this._channel,
             symbol: `${this._coinType}USD`,
         };

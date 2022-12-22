@@ -12,9 +12,6 @@ function App() {
     // <SocketProvider>
     <div className="App">
       <RoutesList />
-      {/* <Header /> */}
-      {/* <Ticker /> */}
-      {/* <Main /> */}
     </div>
     // </SocketProvider>
   );
