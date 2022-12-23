@@ -29,6 +29,7 @@ const prepareDate = (time: number) => {
     const date = new Date(time);
     const hours = date.getHours();
     const minutes = date.getMinutes();
+    let seconds = date.getSeconds().toString();
 
     let timeString = `${hours}:`
 
@@ -36,7 +37,11 @@ const prepareDate = (time: number) => {
         timeString += "0";
     }
 
-    timeString += minutes;
+    if (Number(seconds) < 10) {
+        seconds = `0${seconds}`;
+    }
+
+    timeString += `${minutes}:${seconds}`;
 
     return timeString;
 };
