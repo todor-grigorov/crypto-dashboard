@@ -87,11 +87,19 @@ export abstract class BaseWebSocketService<T> {
             this._coinType = coinType;
         }
 
-        this._msg = {
-            event: SendEventType.SUBSCRIBE,
-            channel: this._channel,
-            symbol: `${this._coinType}USD`,
-        };
+        this._channel === 'candles' ?
+            this._msg = {
+                event: SendEventType.SUBSCRIBE,
+                channel: this._channel,
+                key: `trade:1m:t${this._coinType}USD`,
+                // key: `trade:1m:t${this._coinType}USD:a30:p2:p30`,
+            }
+            :
+            this._msg = {
+                event: SendEventType.SUBSCRIBE,
+                channel: this._channel,
+                symbol: `${this._coinType}USD`,
+            };
 
         this._websocket?.send(JSON.stringify(this._msg));
         this.configureListeners();
@@ -184,11 +192,19 @@ export abstract class BaseWebSocketService<T> {
     }
 
     protected onOpenHandler() {
-        this._msg = {
-            event: SendEventType.SUBSCRIBE,
-            channel: this._channel,
-            symbol: `${this._coinType}USD`,
-        };
+        this._channel === 'candles' ?
+            this._msg = {
+                event: SendEventType.SUBSCRIBE,
+                channel: this._channel,
+                key: `trade:1m:t${this._coinType}USD`,
+                // key: `trade:1m:t${this._coinType}USD:a30:p2:p30`,
+            }
+            :
+            this._msg = {
+                event: SendEventType.SUBSCRIBE,
+                channel: this._channel,
+                symbol: `${this._coinType}USD`,
+            };
 
         this._websocket?.send(JSON.stringify(this._msg));
 

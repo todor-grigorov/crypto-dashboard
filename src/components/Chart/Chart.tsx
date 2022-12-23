@@ -1,6 +1,17 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ReactApexChart from "react-apexcharts";
+import { useDispatch } from "react-redux";
+import config from "../../configs/config";
 import { useAppSelector } from "../../redux/hooks";
+import {
+  addChartData,
+  addSnapshotCharts,
+  setLoading,
+} from "../../redux/slices/chartsSlice";
+import { addSnapshotTrades } from "../../redux/slices/tradesSlice";
+import { WebSocketData } from "../../services/BaseWebSocketService";
+import { ChartService, IChartResponse } from "../../services/ChartService";
+import { CoinType } from "../../types/CoinType";
 import "./chart.css";
 
 const options = {
@@ -43,18 +54,69 @@ interface ParentProps {}
 type Props = ParentProps;
 
 const Chart: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
+  const [chartUpdates, setChartUpdates] =
+    useState<WebSocketData<IChartResponse>>();
+  const [ChartSnapshot, setChartSnapshot] =
+    useState<WebSocketData<IChartResponse>>();
+  const [service, setService] = useState<ChartService>();
+
   const chartsState = useAppSelector((state) => state.charts.candles);
 
-  const [chartData, setChartData] = useState<ApexAxisChartSeries>([
-    { data: [] },
-  ]);
+  const currency = useAppSelector((state) => state.currency.value);
+  const dispatch = useDispatch();
+
+  const serviceConnect = useCallback((currCurrency: CoinType) => {
+    const initService = new ChartService(
+      setChartUpdates,
+      "candles",
+      currCurrency,
+      config.urls.wsUrl,
+      undefined,
+      setChartSnapshot
+    );
+
+    initService.start();
+    setService(initService);
+  }, []);
 
   useEffect(() => {
-    const data = makeChartData;
-    setChartData(data);
+    if (!ChartSnapshot) return;
 
-    return () => {};
-  }, [chartsState]);
+    dispatch(addSnapshotCharts(ChartSnapshot));
+    dispatch(setLoading(false));
+  }, [ChartSnapshot]);
+
+  useEffect(() => {
+    if (!chartUpdates) return;
+
+    dispatch(addChartData(chartUpdates));
+  }, [chartUpdates]);
+
+  /**
+   * Unsunscribe to current currency pair and subscribe to the new pair
+   */
+  useEffect(() => {
+    if (!service) return;
+
+    service?.unSubscribe();
+    dispatch(setLoading(true));
+    service?.reconnect(currency);
+  }, [currency]);
+
+  useEffect(() => {
+    serviceConnect(currency);
+  }, []);
+
+  // const [chartData, setChartData] = useState<ApexAxisChartSeries>([
+  //   { data: [] },
+  // ]);
+
+  // useEffect(() => {
+  //   const data = makeChartData;
+  //   setChartData(data);
+
+  //   return () => {};
+  // }, [chartsState]);
 
   const makeChartData = useMemo((): ApexAxisChartSeries => {
     let series: ApexAxisChartSeries = [{ data: [] }];
@@ -74,7 +136,7 @@ const Chart: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
     <div className="chart">
       <ReactApexChart
         options={options}
-        series={chartData}
+        series={makeChartData}
         type="candlestick"
         height={350}
       />

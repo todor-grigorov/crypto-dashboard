@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { WebSocketData } from '../../services/BaseWebSocketService';
+import { IChartResponse } from '../../services/ChartService';
 import { SocketChanelType } from '../../types/SocketChannelType';
 
 function roundToTwo(num: number) {
@@ -30,42 +32,46 @@ export const chartsSlice = createSlice({
     name: 'charts',
     initialState,
     reducers: {
-        subscribeCharts: (state, { payload }) => {
-            state.chanId = payload["chanId"];
-            state.channel = payload["channel"];
-            return state;
-        },
-
-        addSnapshotCharts: (state, action: PayloadAction<Array<Array<number>>>) => {
-            const data = action.payload;
-            state.candles = data.map(nums => ({
-                mts: roundToTwo(nums[0]),
-                open: roundToTwo(nums[1]),
-                close: roundToTwo(nums[2]),
-                high: roundToTwo(nums[3]),
-                low: roundToTwo(nums[4]),
-                volume: roundToTwo(nums[5]),
+        addSnapshotCharts: (state, action: PayloadAction<WebSocketData<IChartResponse>>) => {
+            state.candles = action.payload.data.map(details => ({
+                mts: roundToTwo(details.MTS),
+                open: roundToTwo(details.OPEN),
+                close: roundToTwo(details.CLOSE),
+                high: roundToTwo(details.HIGH),
+                low: roundToTwo(details.LOW),
+                volume: roundToTwo(details.VOLUME),
             }));
 
+            state.candles.sort((a, b) => (a.mts - b.mts));
+
             return state;
         },
 
-        addChartData: (state, { payload }) => {
-            state.candles.shift();
-            state.candles.push({
-                mts: roundToTwo(payload[0]),
-                open: roundToTwo(payload[1]),
-                close: roundToTwo(payload[2]),
-                high: roundToTwo(payload[3]),
-                low: roundToTwo(payload[4]),
-                volume: roundToTwo(payload[5]),
+        addChartData: (state, action: PayloadAction<WebSocketData<IChartResponse>>) => {
+            if (!action.payload.data.length) return;
+
+            const update = action.payload.data[0];
+            state.candles.pop();
+            state.candles.unshift({
+                mts: roundToTwo(update.MTS),
+                open: roundToTwo(update.OPEN),
+                close: roundToTwo(update.CLOSE),
+                high: roundToTwo(update.HIGH),
+                low: roundToTwo(update.LOW),
+                volume: roundToTwo(update.VOLUME),
             } as ChartState);
 
             return state;
+        },
+
+        setLoading: (state, { payload }) => {
+            const newState = { ...state, loading: payload };
+
+            return newState;
         }
     }
 });
 
-export const { subscribeCharts, addChartData, addSnapshotCharts } = chartsSlice.actions;
+export const { addChartData, addSnapshotCharts, setLoading } = chartsSlice.actions;
 
 export default chartsSlice.reducer;

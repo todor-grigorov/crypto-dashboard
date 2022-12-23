@@ -90,13 +90,14 @@ export const tradesSlice = createSlice({
             if (!action.payload.data.length) return;
 
             const update = action.payload.data[0];
-            const isPushed = state.trades.findIndex(x => x.id === update.ID);
-            if (isPushed > 0) {
-                state.trades.splice(isPushed, 1);
-            } else {
-                state.trades.shift();
-            }
-            state.trades.push({
+            // const isPushed = state.trades.findIndex(x => x.id === update.ID);
+            // if (isPushed > 0) {
+            //     state.trades.splice(isPushed, 1);
+            // } else {
+            //     state.trades.shift();
+            // }
+            state.trades.pop();
+            state.trades.unshift({
                 id: update.ID,
                 time: prepareDate(update.MTS),
                 amount: Math.abs(update.AMOUNT),
@@ -104,7 +105,7 @@ export const tradesSlice = createSlice({
                 isUp: update.AMOUNT > 0 ? true : false,
             } as TradeState);
 
-            state.trades.sort((a, b) => dateCompare(a.time, b.time));
+            // state.trades.sort((a, b) => dateCompare(a.time, b.time));
 
             return state;
         },

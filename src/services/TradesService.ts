@@ -6,8 +6,6 @@ export interface ITradesResponse {
     ID: number,
     AMOUNT: number,
     PRICE: number,
-
-
 };
 
 const initialState = {
@@ -30,7 +28,7 @@ export class TradesService extends BaseWebSocketService<ITradesResponse> {
         result.channelId = channelId;
         result.abbreviation = abbreviation;
 
-        if (update.length !== 3) return result;
+        if (update.length !== 4) return result;
 
         const [
             ID,
@@ -57,7 +55,7 @@ export class TradesService extends BaseWebSocketService<ITradesResponse> {
         const [channelId, nestedArray] = data;
         result.channelId = channelId;
 
-        nestedArray.forEach((update, idx) => {
+        nestedArray.forEach((update) => {
             const [
                 ID,
                 MTS,
