@@ -164,7 +164,6 @@ export abstract class BaseWebSocketService<T> {
                     break;
                 }
             }
-
         });
     }
 
