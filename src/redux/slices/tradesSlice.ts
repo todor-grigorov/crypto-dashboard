@@ -39,8 +39,21 @@ const prepareDate = (time: number) => {
     timeString += minutes;
 
     return timeString;
-}
+};
 
+
+const dateCompare = (d1: string, d2: string) => {
+    const date1 = new Date(d1);
+    const date2 = new Date(d2);
+
+    if (date1 > date2) {
+        return 1;
+    } else if (date1 < date2) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
 
 const initialState: TradesState = {
     chanId: 0,
@@ -63,6 +76,8 @@ export const tradesSlice = createSlice({
                 isUp: trade.AMOUNT > 0 ? true : false,
             }));
 
+            state.trades.sort((a, b) => dateCompare(a.time, b.time));
+
             return state;
         },
 
@@ -83,6 +98,8 @@ export const tradesSlice = createSlice({
                 price: update.PRICE.toFixed(1),
                 isUp: update.AMOUNT > 0 ? true : false,
             } as TradeState);
+
+            state.trades.sort((a, b) => dateCompare(a.time, b.time));
 
             return state;
         },
