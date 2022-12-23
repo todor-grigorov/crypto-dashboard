@@ -45,6 +45,8 @@ const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
     );
     service.start();
     return service;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -54,6 +56,8 @@ const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
     setCoinType(currency);
     service?.unSubscribe();
     service?.reconnect(currency);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency]);
 
   /**
@@ -69,6 +73,8 @@ const Ticker: React.FunctionComponent<Props> = (): JSX.Element => {
     return () => {
       clearInterval(timerId);
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

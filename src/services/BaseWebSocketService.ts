@@ -169,7 +169,7 @@ export abstract class BaseWebSocketService<T> {
 
     protected handleMessageType(message: WSEventResponse | Array<unknown>): MessageType {
         if (Array.isArray(message)) {
-            const [firstElement, secondElement] = message;
+            const [, secondElement] = message;
             if (message.length === 2 && Array.isArray(secondElement) && Array.isArray(secondElement[0])) {
                 return MessageType.SNAPSHOT;
             } else if (message.length === 2 && Array.isArray(secondElement)) {

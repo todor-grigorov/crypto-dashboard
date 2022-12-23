@@ -1,8 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Container from "../containers/Container/Container";
-import Header from "../containers/Header/Header";
-import Ticker from "./Ticker/Ticker";
 
 const RoutesList = (): JSX.Element => {
   return (

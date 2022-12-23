@@ -19,13 +19,13 @@ const columns = [
   { Header: "Time", accessor: "time" },
 ];
 
-const data = [
-  { price: 1, amount: 0.1, time: 11111, isUp: true },
-  { price: 2, amount: 0.2, time: 22222, isUp: true },
-  { price: 3, amount: 0.3, time: 33333, isUp: false },
-  { price: 4, amount: 0.4, time: 44444, isUp: true },
-  { price: 32876, amount: 1, time: 55555, isUp: false },
-];
+// const data = [
+//   { price: 1, amount: 0.1, time: 11111, isUp: true },
+//   { price: 2, amount: 0.2, time: 22222, isUp: true },
+//   { price: 3, amount: 0.3, time: 33333, isUp: false },
+//   { price: 4, amount: 0.4, time: 44444, isUp: true },
+//   { price: 32876, amount: 1, time: 55555, isUp: false },
+// ];
 
 interface ParentProps {}
 
@@ -62,13 +62,13 @@ const Trades: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
 
     dispatch(addSnapshotTrades(TradesSnapshot));
     dispatch(setLoading(false));
-  }, [TradesSnapshot]);
+  }, [TradesSnapshot, dispatch]);
 
   useEffect(() => {
     if (!tradeUpdates) return;
 
     dispatch(addTradeData(tradeUpdates));
-  }, [tradeUpdates]);
+  }, [tradeUpdates, dispatch]);
 
   /**
    * Unsunscribe to current currency pair and subscribe to the new pair
@@ -79,10 +79,14 @@ const Trades: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
     service?.unSubscribe();
     dispatch(setLoading(true));
     service?.reconnect(currency);
-  }, [currency]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency, dispatch]);
 
   useEffect(() => {
     serviceConnect(currency);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

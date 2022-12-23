@@ -28,6 +28,7 @@ const CoinCard: React.FunctionComponent<Props> = ({
     else setIsIncreasing(false);
 
     setCurrentValue(coinValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coinValue]);
 
   return (

@@ -6,7 +6,6 @@ import {
   IOrderBookResponse,
   OrderBookService,
 } from "../../services/OrderBookService";
-import { SocketChanelType } from "../../types/SocketChannelType";
 import Table from "../Table/Table";
 import "./orderBook.css";
 import { CoinType } from "../../types/CoinType";
@@ -74,13 +73,13 @@ const OrderBook: React.FunctionComponent<Props> = (): JSX.Element => {
 
     dispatch(addSnapshotOrderBook(orderBookSnapshot));
     dispatch(setLoading(false));
-  }, [orderBookSnapshot]);
+  }, [orderBookSnapshot, dispatch]);
 
   useEffect(() => {
     if (!orderBookUpdates) return;
 
     dispatch(addBookData(orderBookUpdates));
-  }, [orderBookUpdates]);
+  }, [orderBookUpdates, dispatch]);
 
   /**
    * Unsunscribe to current currency pair and subscribe to the new pair
@@ -91,10 +90,14 @@ const OrderBook: React.FunctionComponent<Props> = (): JSX.Element => {
     service?.unSubscribe();
     dispatch(setLoading(true));
     service?.reconnect(currency);
-  }, [currency]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency, dispatch]);
 
   useEffect(() => {
     serviceConnect(currency);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

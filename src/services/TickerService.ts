@@ -1,6 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-import { ISocketMessage } from "../interfaces/ISocketMessage";
-import { CoinType } from "../types/CoinType";
 import { BaseWebSocketService, WebSocketData } from "./BaseWebSocketService";
 
 export interface ITickerResponse {

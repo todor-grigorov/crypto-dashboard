@@ -8,7 +8,6 @@ import {
   addSnapshotCharts,
   setLoading,
 } from "../../redux/slices/chartsSlice";
-import { addSnapshotTrades } from "../../redux/slices/tradesSlice";
 import { WebSocketData } from "../../services/BaseWebSocketService";
 import { ChartService, IChartResponse } from "../../services/ChartService";
 import { CoinType } from "../../types/CoinType";
@@ -84,13 +83,13 @@ const Chart: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
 
     dispatch(addSnapshotCharts(ChartSnapshot));
     dispatch(setLoading(false));
-  }, [ChartSnapshot]);
+  }, [ChartSnapshot, dispatch]);
 
   useEffect(() => {
     if (!chartUpdates) return;
 
     dispatch(addChartData(chartUpdates));
-  }, [chartUpdates]);
+  }, [chartUpdates, dispatch]);
 
   /**
    * Unsunscribe to current currency pair and subscribe to the new pair
@@ -101,22 +100,15 @@ const Chart: React.FunctionComponent<Props> = (props: Props): JSX.Element => {
     service?.unSubscribe();
     dispatch(setLoading(true));
     service?.reconnect(currency);
-  }, [currency]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency, dispatch]);
 
   useEffect(() => {
     serviceConnect(currency);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // const [chartData, setChartData] = useState<ApexAxisChartSeries>([
-  //   { data: [] },
-  // ]);
-
-  // useEffect(() => {
-  //   const data = makeChartData;
-  //   setChartData(data);
-
-  //   return () => {};
-  // }, [chartsState]);
 
   const makeChartData = useMemo((): ApexAxisChartSeries => {
     let series: ApexAxisChartSeries = [{ data: [] }];

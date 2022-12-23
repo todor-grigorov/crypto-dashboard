@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import React, { useState, useEffect, Dispatch } from "react";
 import { Button, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsNone from "@mui/icons-material/NotificationsNone";
@@ -24,11 +18,6 @@ import { WebSocketData } from "../../services/BaseWebSocketService";
 const Header = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  const [btcService, setBtcService] = useState<TickerService>();
-  const [ethService, setEthService] = useState<TickerService>();
-  const [solService, setSolService] = useState<TickerService>();
-  const [udcService, setUdcService] = useState<TickerService>();
 
   const [btcData, setBtcData] = useState<WebSocketData<ITickerResponse>>();
   const [ethData, setEthData] = useState<WebSocketData<ITickerResponse>>();
