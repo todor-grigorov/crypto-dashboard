@@ -5,11 +5,11 @@ import Container from "../containers/Container/Container";
 const RoutesList = (): JSX.Element => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate replace to="/btc" />}></Route>
-      <Route path="/btc" element={<Container />}></Route>
-      <Route path="/eth" element={<Container />}></Route>
-      <Route path="/sol" element={<Container />}></Route>
-      <Route path="/udc" element={<Container />}></Route>
+      <Route path="/" element={<Navigate replace to="/currency/btc" />}></Route>
+      <Route path="/currency/btc" element={<Container />}></Route>
+      <Route path="/currency/eth" element={<Container />}></Route>
+      <Route path="/currency/sol" element={<Container />}></Route>
+      <Route path="/currency/udc" element={<Container />}></Route>
     </Routes>
   );
 };

@@ -40,12 +40,6 @@ export const tickerSlice = createSlice({
     name: 'ticker',
     initialState,
     reducers: {
-        subscribeTicker: (state, { payload }) => {
-            state.chanId = payload["chanId"];
-            state.channel = payload["channel"];
-            return state;
-        },
-
         updateTickerOperationalData: (state, { payload }) => {
             state.bid = payload[0];
             state.bidSize = payload[1];
@@ -61,6 +55,6 @@ export const tickerSlice = createSlice({
     }
 });
 
-export const { subscribeTicker, updateTickerOperationalData } = tickerSlice.actions;
+export const { updateTickerOperationalData } = tickerSlice.actions;
 
 export default tickerSlice.reducer;

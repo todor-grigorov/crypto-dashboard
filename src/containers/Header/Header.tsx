@@ -104,7 +104,7 @@ const Header = (): JSX.Element => {
   const coinCardClickHandler = (coinType: CoinType): void => {
     setActiveCurrency(coinType);
     dispatch(setCurrency(coinType));
-    navigate(`/${coinType.toLocaleLowerCase()}`);
+    navigate(`/currency/${coinType.toLocaleLowerCase()}`);
   };
 
   return (
