@@ -1,9 +1,10 @@
 import { createContext, useState, useMemo } from 'react';
 import { createTheme, Theme, ThemeOptions } from '@mui/material/styles';
 import { ThemeMode } from './types/ThemeMode';
+import { PaletteMode } from '@mui/material';
 
 // color tokens
-export const tokens = (mode: ThemeMode) => ({
+export const tokens = (mode: ThemeMode | PaletteMode) => ({
     ...(mode === ThemeMode.DARK)
         ?
         {
